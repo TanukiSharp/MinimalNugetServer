@@ -2,7 +2,7 @@
 
 This is a minimal implementation of a NuGet server.
 
-It supports API v2 for most of usages with Visual Studio package manager (search packages, find package versions, etc...) and it also support V3 with `dotnet restore` only, not Visual Studio support for v3 APIs.
+It supports API v2 for most of usages with Visual Studio package manager (search packages, find package versions, etc...) and it also support v3 with `dotnet restore` only, not Visual Studio support for v3 APIs.
 
 It basically works the same as if you were using a file system folder as package source.
 
@@ -10,13 +10,17 @@ This server provides us a standardized way to access our internally developped p
 
 # Note before getting started
 
-Since it is developped for .NET Core runtime, it is possible to build and run it everywhere .NET Core runs.
+Since it is developped for .NET Core runtime, it is possible to build and run it virtually everywhere .NET Core runs.
 
 However, all the following instructions are written considering a Windows and Linux workstation to build and generate a publishable, and Linux machine as an hosting server.
 
+Also, please understand that this is a very simple and naive implementation, that could be suited for individuals or small organizations.
+
+See the section `Future works` at the bottom of this document for more details.
+
 # Problems it solves
 
-We need to self-host our internally developped packages, and prior this implementation, we were using a samba shared folder, hosted on a Linux server.
+We need to self-host our internally developped packages, and prior this implementation, we were using a samba shared folder, hosted on a Linux machine.
 
 The main problems were:
 - Some operating systems have hard time to connect to a samba shared folder
@@ -102,3 +106,12 @@ On the client side, you have to add the following package source to your `nuget.
 From the server point of view, it does not support publishing APIs, as a shared folder would. To add new packages, you have to copy them manually to the packages directory on your hosting machine.
 
 The server uses a `FileSystemWatcher` to detect new files, files removed and files renamed, and will reprocess the whole packages collection for future incomming requests.
+
+# Future works
+
+For now, the server loads all the packages (file content) in memory at start time, and each time the packages folder changes.
+
+Improvements could be:
+- Lazy loading of packages, with a MRU cache to avoid consuming too much memory (feasible)
+- Reprocessing only the necessary items (a bit more tricky)
+- Better support of the v3 API once documented by the NuGet team
