@@ -1,0 +1,8 @@
+{
+  "server": {
+    "url": "http://*:4356"
+  },
+  "nuget": {
+    "packages": "/absolute/path/to/packages/folder"
+  }
+}
