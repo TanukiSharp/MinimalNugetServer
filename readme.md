@@ -100,8 +100,8 @@ The `nuget` section holds the configuration related to the NuGet things, and for
 # Runtime
 
 On the client side, you have to add the following package source to your `nuget.config` file, either manually or through Visual Studio:
-- http://*\<host\>*:4356/v2 to use the v2 API (good support)
-- http://*\<host\>*:4356/v3 to use the v3 API (`dotnet restore` only)
+- http://*\<host\>*:4356/v2/ to use the v2 API (good support)
+- http://*\<host\>*:4356/v3/ to use the v3 API (`dotnet restore` only)
 
 From the server point of view, it does not support publishing APIs, as a shared folder would. To add new packages, you have to copy them manually to the packages directory on your hosting machine.
 

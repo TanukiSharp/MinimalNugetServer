@@ -153,7 +153,7 @@ namespace MinimalNugetServer
                 matchingPackageIndices.Select(idx =>
                     new XElement(
                         XmlElements.entry,
-                        new XElement(XmlElements.id, $"{context.Request.Scheme}://{context.Request.Host}/Packages(Id='{packages[idx].Id}',Version='{packages[idx].LatestVersion}')"),
+                        new XElement(XmlElements.id, $"{context.Request.Scheme}://{context.Request.Host}{Segment}/Packages(Id='{packages[idx].Id}',Version='{packages[idx].LatestVersion}')"),
                         new XElement(
                             XmlElements.content,
                             new XAttribute("type", "application/zip"),
@@ -240,7 +240,7 @@ namespace MinimalNugetServer
                 new XAttribute(XmlElements.d, XmlNamespaces.d),
                 new XAttribute(XmlElements.georss, XmlNamespaces.georss),
                 new XAttribute(XmlElements.gml, XmlNamespaces.gml),
-                new XElement(XmlElements.id, $"{context.Request.Scheme}://{context.Request.Host}/Packages(Id='{id}',Version='{version}')"),
+                new XElement(XmlElements.id, $"{context.Request.Scheme}://{context.Request.Host}{Segment}/Packages(Id='{id}',Version='{version}')"),
                 new XElement(
                     XmlElements.content,
                     new XAttribute("type", "application/zip"),

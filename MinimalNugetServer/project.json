@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0-*",
+    "version": "1.0.1-*",
     "buildOptions": {
         "debugType": "portable",
         "emitEntryPoint": true,
@@ -8,7 +8,9 @@
     "authors": [ "Sebastien ROBERT" ],
     "description": "A minimal implementation of a NuGet server, running on .NET Core",
     "language": "en-US",
-    "projectUrl": "https://github.com/TanukiSharp/MinimalNugetServer",
+    "packOptions": {
+        "projectUrl": "https://github.com/TanukiSharp/MinimalNugetServer"
+    },
     "tools": {
         "Bitcraft.Tools.GitCommitHash": "1.0.1"
     },
