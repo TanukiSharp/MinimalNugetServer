@@ -63,11 +63,19 @@ namespace MinimalNugetServer
             }
         }
 
+        private readonly FileSystemWatcher watcher = new FileSystemWatcher();
+
         private void WatchPackagesFolder()
         {
-            var watcher = new FileSystemWatcher();
-
             watcher.Path = packagesPath;
+            watcher.NotifyFilter =
+                NotifyFilters.Attributes |
+                NotifyFilters.FileName |
+                NotifyFilters.DirectoryName |
+                NotifyFilters.Attributes |
+                NotifyFilters.Size |
+                NotifyFilters.LastWrite |
+                NotifyFilters.CreationTime;
             watcher.Filter = "*.nupkg";
             watcher.Changed += OnPackagesFolderChanged;
             watcher.Created += OnPackagesFolderChanged;
@@ -83,6 +91,7 @@ namespace MinimalNugetServer
         private void OnPackageProcessingThrottleTimeout(object ignore)
         {
             packagesProcessingLock.EnterWriteLock();
+            watcher.EnableRaisingEvents = false;
 
             try
             {
@@ -90,6 +99,7 @@ namespace MinimalNugetServer
             }
             finally
             {
+                watcher.EnableRaisingEvents = true;
                 packagesProcessingLock.ExitWriteLock();
             }
         }
