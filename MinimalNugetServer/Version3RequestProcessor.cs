@@ -125,14 +125,18 @@ namespace MinimalNugetServer
             lock (Globals.ConsoleLock)
                 Console.WriteLine($"ProcessContainerVersion [version: {version}]");
 
-            byte[] content = MasterData.Use(packageIndex, version, (packages, contents, _packageIndex, _version) =>
+            byte[] content = MasterData.Use(packageIndex, version, (packages, contentFacade, _packageIndex, _version) =>
             {
                 VersionInfo[] versions = packages[_packageIndex].Versions;
 
                 for (int i = 0; i < versions.Length; i++)
                 {
                     if (versions[i].Version == _version)
-                        return contents[versions[i].ContentId];
+                    {
+                        byte[] result;
+                        if (contentFacade.TryGetValue(versions[i].ContentId, out result))
+                            return result;
+                    }
                 }
 
                 return null;

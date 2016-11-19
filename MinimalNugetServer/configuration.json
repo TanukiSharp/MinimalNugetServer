@@ -4,5 +4,9 @@
   },
   "nuget": {
     "packages": "/absolute/path/to/packages/folder"
+  },
+  "cache": {
+    "type": "NoCacheLoadAll",
+    "duration": -1
   }
 }

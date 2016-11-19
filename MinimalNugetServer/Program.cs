@@ -18,9 +18,39 @@ namespace MinimalNugetServer
 
             IConfigurationRoot configuration = builder.Build();
 
-            var program = new Program(configuration["nuget:packages"]);
+            var program = new Program(configuration["nuget:packages"], LoadCacheStrategy(configuration));
 
             program.Run(configuration["server:url"]);
+        }
+
+        private static CacheStrategy LoadCacheStrategy(IConfigurationRoot config)
+        {
+            CacheType cacheType = CacheType.NoCacheLoadAll;
+            uint cacheDuration = 24 * 3600; // 24 hours
+
+            string strCacheType = config["cache:type"];
+            CacheType tempCacheType;
+            if (Enum.TryParse(strCacheType, true, out tempCacheType))
+                cacheType = tempCacheType;
+
+            string strCacheDuration = config["cache:duration"];
+            uint tempCacheDuration;
+            if (uint.TryParse(strCacheDuration, out tempCacheDuration))
+                cacheDuration = tempCacheDuration;
+
+            lock (Globals.ConsoleLock)
+            {
+                Console.Write($"Cache strategy: {cacheType}");
+                if (cacheType == CacheType.Cache)
+                    Console.Write($" ({cacheDuration} seconds)");
+                Console.WriteLine();
+            }
+
+            return new CacheStrategy
+            {
+                CacheType = cacheType,
+                CacheEntryExpiration = cacheDuration,
+            };
         }
 
         // ===================================================================================
@@ -33,9 +63,9 @@ namespace MinimalNugetServer
             new Version3RequestProcessor()
         };
 
-        public Program(string packagesPath)
+        public Program(string packagesPath, CacheStrategy cacheStrategy)
         {
-            masterData = new MasterData(packagesPath);
+            masterData = new MasterData(packagesPath, cacheStrategy);
         }
 
         private void Run(string url)

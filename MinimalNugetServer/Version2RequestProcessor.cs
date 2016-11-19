@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Http;
+using MinimalNugetServer.ContentFacades;
 
 namespace MinimalNugetServer
 {
@@ -67,10 +68,10 @@ namespace MinimalNugetServer
 
         private async Task ProcessDownload(HttpContext context, string downloadPath)
         {
-            byte[] content = MasterData.Use(downloadPath, (packageInfo, contents, _downloadPath) =>
+            byte[] content = MasterData.Use(downloadPath, (packageInfo, contentFacade, _downloadPath) =>
             {
                 byte[] _content;
-                if (contents.TryGetValue(_downloadPath.TrimStart(Characters.UrlPathSeparator), out _content))
+                if (contentFacade.TryGetValue(_downloadPath.TrimStart(Characters.UrlPathSeparator), out _content))
                     return _content;
                 return null;
             });
@@ -93,7 +94,7 @@ namespace MinimalNugetServer
             return MasterData.Use(context, ProcessSearchSafe);
         }
 
-        private async Task ProcessSearchSafe(IReadOnlyList<PackageInfo> packages, IReadOnlyDictionary<string, byte[]> contents, HttpContext context)
+        private async Task ProcessSearchSafe(IReadOnlyList<PackageInfo> packages, IContentFacade unused, HttpContext context)
         {
             // targetFramework = '...'
             // $filter = IsLatestVersion

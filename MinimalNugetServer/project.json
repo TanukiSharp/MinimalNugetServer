@@ -1,5 +1,5 @@
 {
-    "version": "1.0.2-*",
+    "version": "1.0.3-*",
     "buildOptions": {
         "debugType": "portable",
         "emitEntryPoint": true,
@@ -20,17 +20,18 @@
     "dependencies": {
         "Microsoft.NETCore.App": {
             "type": "platform",
-            "version": "1.0.1"
+            "version": "1.1.0"
         },
-        "Microsoft.AspNetCore.Server.Kestrel": "1.0.1",
-        "System.Xml.XDocument": "4.0.11",
-        "Microsoft.Extensions.Configuration.Abstractions": "1.0.0",
-        "Microsoft.Extensions.Configuration.FileExtensions": "1.0.0",
-        "Microsoft.Extensions.Configuration.Json": "1.0.0",
-        "Newtonsoft.Json": "9.0.1"
+        "Microsoft.AspNetCore.Server.Kestrel": "1.1.0",
+        "System.Xml.XDocument": "4.3.0",
+        "Newtonsoft.Json": "9.0.1",
+        "Microsoft.Extensions.Configuration.Abstractions": "1.1.0",
+        "Microsoft.Extensions.Configuration.FileExtensions": "1.1.0",
+        "Microsoft.Extensions.Configuration.Json": "1.1.0",
+        "Microsoft.Extensions.Caching.Memory": "1.1.0"
     },
     "frameworks": {
-        "netcoreapp1.0": {
+        "netcoreapp1.1": {
             "imports": "dnxcore50"
         }
     }

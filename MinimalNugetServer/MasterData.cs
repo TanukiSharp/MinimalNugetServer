@@ -4,13 +4,27 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using MinimalNugetServer.ContentFacades;
 
 namespace MinimalNugetServer
 {
+    public enum CacheType
+    {
+        NoCacheLoadAll,
+        Cache,
+        NoCacheLoadNothing,
+    }
+
+    public struct CacheStrategy
+    {
+        public CacheType CacheType;
+        public uint CacheEntryExpiration; // in seconds
+    }
+
     public class MasterData
     {
         private IReadOnlyList<PackageInfo> packages;
-        private IReadOnlyDictionary<string, byte[]> contents;
+        private readonly IContentFacadeAccessor contentFacade;
 
         private readonly string packagesPath;
 
@@ -18,18 +32,27 @@ namespace MinimalNugetServer
         private const int PackageProcessingThrottleDelay = 1000;
         private Timer packageProcessingThrottleTimer;
 
-        public MasterData(string packagesPath)
+        public MasterData(string packagesPath, CacheStrategy cacheStrategy)
         {
             if (string.IsNullOrWhiteSpace(packagesPath))
                 throw new ArgumentException($"Invalid '{nameof(packagesPath)}' argument.", nameof(packagesPath));
 
             this.packagesPath = packagesPath;
 
+            if (cacheStrategy.CacheType == CacheType.NoCacheLoadAll)
+                contentFacade = new LoadAllContentFacade();
+            else if (cacheStrategy.CacheType == CacheType.NoCacheLoadNothing)
+                contentFacade = new LoadNothingContentFacade();
+            else if (cacheStrategy.CacheType == CacheType.Cache)
+                contentFacade = new CachedContentFacade(cacheStrategy.CacheEntryExpiration);
+            else
+                throw new NotSupportedException($"Cache type '{cacheStrategy.CacheType}' not supported yet.");
+
             ProcessPackageFiles();
             WatchPackagesFolder();
         }
 
-        public TResult Use<TResult, T1>(T1 arg1, Func<IReadOnlyList<PackageInfo>, IReadOnlyDictionary<string, byte[]>, T1, TResult> action)
+        public TResult Use<TResult, T1>(T1 arg1, Func<IReadOnlyList<PackageInfo>, IContentFacade, T1, TResult> action)
         {
             if (action == null)
                 throw new ArgumentNullException(nameof(action));
@@ -38,7 +61,7 @@ namespace MinimalNugetServer
 
             try
             {
-                return action(packages, contents, arg1);
+                return action(packages, contentFacade, arg1);
             }
             finally
             {
@@ -46,7 +69,7 @@ namespace MinimalNugetServer
             }
         }
 
-        public TResult Use<TResult, T1, T2>(T1 arg1, T2 arg2, Func<IReadOnlyList<PackageInfo>, IReadOnlyDictionary<string, byte[]>, T1, T2, TResult> action)
+        public TResult Use<TResult, T1, T2>(T1 arg1, T2 arg2, Func<IReadOnlyList<PackageInfo>,IContentFacade, T1, T2, TResult> action)
         {
             if (action == null)
                 throw new ArgumentNullException(nameof(action));
@@ -55,7 +78,7 @@ namespace MinimalNugetServer
 
             try
             {
-                return action(packages, contents, arg1, arg2);
+                return action(packages, contentFacade, arg1, arg2);
             }
             finally
             {
@@ -140,9 +163,12 @@ namespace MinimalNugetServer
                          into x
                          group x by x.Id;
 
-            var localContents = groups
-                .SelectMany(x => x)
-                .ToDictionary(x => x.ContentId, x => x.Content);
+            contentFacade.Clear();
+            foreach (var group in groups)
+            {
+                foreach (var info in group)
+                    contentFacade.Add(info.ContentId, info.FullFilePath);
+            }
 
             var localPackages = (from g in groups
                         let versions = g.Select(x => new VersionInfo { Version = x.Version, ContentId = x.ContentId }).OrderBy(x => x.Version).ToArray()
@@ -157,7 +183,6 @@ namespace MinimalNugetServer
                         .ToArray();
 
             packages = new ReadOnlyCollection<PackageInfo>(localPackages);
-            contents = new ReadOnlyDictionary<string, byte[]>(localContents);
 
             lock (Globals.ConsoleLock)
             {
