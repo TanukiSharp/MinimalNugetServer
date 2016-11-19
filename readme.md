@@ -107,8 +107,8 @@ The `cache` section contains the cache strategy settings:
 # Runtime
 
 On the client side, you have to add the following package source to your `nuget.config` file, either manually or through Visual Studio:
-- `http://*\<host\>*:4356/v2/` to use the v2 API (good support)
-- `http://*\<host\>*:4356/v3/` to use the v3 API (`dotnet restore` only)
+- `http://<host>:4356/v2/` to use the v2 API (good support)
+- `http://<host>:4356/v3/` to use the v3 API (`dotnet restore` only)
 
 **Warning: the terminating slash symbol (/) in the URL is very important, do not omit it!**
 
