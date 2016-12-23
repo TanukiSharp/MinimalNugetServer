@@ -12,9 +12,14 @@ namespace MinimalNugetServer
     {
         public static void Main(string[] args)
         {
-            var builder = new ConfigurationBuilder()
+            string configurationFile = "configuration.json";
+
+            if (args.Length == 1)
+                configurationFile = args[0];
+
+            IConfigurationBuilder builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("configuration.json", optional: false);
+                .AddJsonFile(configurationFile, optional: false);
 
             IConfigurationRoot configuration = builder.Build();
 

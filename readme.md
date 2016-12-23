@@ -2,7 +2,7 @@
 
 This is a minimal implementation of a NuGet server.
 
-It supports API v2 for most of usages with Visual Studio package manager (search packages, find package versions, etc...) and it also support v3 with `dotnet restore` only, not Visual Studio support for v3 APIs.
+It supports API v2 for most of usages with `dotnet restore` and Visual Studio package manager (search packages, find package versions, etc...), and it also supports v3 with `dotnet restore` only, no Visual Studio support for v3 APIs.
 
 It basically works the same as if you were using a shared folder as package source.
 Thus, all `.nupkg` files in the root directory (and sub directories) are treated as a flat collection of package file.
@@ -30,6 +30,11 @@ It seems for the moment the only available implementations of NuGet server is ma
 # How to use it
 
 ## Build
+
+First, you must make sure you have .NET Core SDK 1.0.0-preview2-003156 tooling, as stated in the `global.json` file.
+You can probably change the `global.json` to another version if you prefer.
+
+You will need the .NET Core 1.1 runtime installed on the machine you will run it, unless you modify the `project.json` file to produce a self-contained distribution.
 
 In a terminal, go to the directory that contains the `project.json` file and run the `dotnet build` command.
 
@@ -67,8 +72,14 @@ In the `scripts` directory, you can run the script `make_publishable`, either th
 This will make everything ready in the directory `bin/Release/netcoreapp1.1/publish` for you to deploy to a hosting server.
 
 Once deployed where you want to run it, execute the command `./start.sh`.
+This will run the server and make it look for the `configuration.json` file.
+
+You can also run the server giving it a specific configuration file, this way: `start.sh <configfile>`.
+This is very useful when you want to host different package repositories.
 
 The `start.sh` script runs the server detached from the terminal that ran it, redirects all outputs to a log file, and creates a `run.pid` file to track the process in order to stop it more easily if needed.
+
+Remember that if you start several instances of the server, the `run.pid` file of the previous instance will be overwritten.
 
 To check the log, run the command `tail -f logs/<date>/log_<time>.txt` file.
 This will display the last few lines of the log file, and also prints the new comming log entries (watch mode).
