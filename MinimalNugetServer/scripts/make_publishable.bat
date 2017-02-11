@@ -1,5 +1,6 @@
-set CONFIGURATION=Release
-set OUTPUT=..\bin\%CONFIGURATION%\netcoreapp1.1\publish\
+set CONFIGURATION=release
+set RUNTIME=netcoreapp1.1
+set OUTPUT=..\bin\%CONFIGURATION%\%RUNTIME%\publish\
 
 pushd ..
 dotnet restore

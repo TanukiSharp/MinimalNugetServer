@@ -11,9 +11,8 @@ samples/NugetPackageConsumingApp1/bin/Debug/
 samples/NugetPackageConsumingApp1/bin/Release/
 samples/NugetPackageConsumingApp1/obj/Debug/
 samples/NugetPackageConsumingApp1/obj/Release/
-MinimalNugetServer/bin/Debug/
-MinimalNugetServer/bin/Release/
-MinimalNugetServer/obj/Debug/
-MinimalNugetServer/obj/Release/
+MinimalNugetServer/bin/
+MinimalNugetServer/obj/
 samples/NugetPackageConsumingApp1/packages/
-MinimalNugetServer/GitCommitHash.cs
+MinimalNugetServer/GitCommitInfo.cs
+

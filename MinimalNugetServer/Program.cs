@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace MinimalNugetServer
 {
@@ -23,9 +24,7 @@ namespace MinimalNugetServer
 
             IConfigurationRoot configuration = builder.Build();
 
-            var program = new Program(configuration["nuget:packages"], LoadCacheStrategy(configuration));
-
-            program.Run(configuration["server:url"]);
+            new Program().Run(configuration);
         }
 
         private static CacheStrategy LoadCacheStrategy(IConfigurationRoot config)
@@ -34,13 +33,13 @@ namespace MinimalNugetServer
             uint cacheDuration = 24 * 3600; // 24 hours
 
             string strCacheType = config["cache:type"];
-            CacheType tempCacheType;
-            if (Enum.TryParse(strCacheType, true, out tempCacheType))
+
+            if (Enum.TryParse(strCacheType, true, out CacheType tempCacheType))
                 cacheType = tempCacheType;
 
             string strCacheDuration = config["cache:duration"];
-            uint tempCacheDuration;
-            if (uint.TryParse(strCacheDuration, out tempCacheDuration))
+
+            if (uint.TryParse(strCacheDuration, out uint tempCacheDuration))
                 cacheDuration = tempCacheDuration;
 
             lock (Globals.ConsoleLock)
@@ -60,7 +59,7 @@ namespace MinimalNugetServer
 
         // ===================================================================================
 
-        private readonly MasterData masterData;
+        private MasterData masterData;
 
         private readonly RequestProcessorBase[] requestProcessors = new RequestProcessorBase[]
         {
@@ -68,21 +67,25 @@ namespace MinimalNugetServer
             new Version3RequestProcessor()
         };
 
-        public Program(string packagesPath, CacheStrategy cacheStrategy)
+        private void Run(IConfigurationRoot config)
         {
-            masterData = new MasterData(packagesPath, cacheStrategy);
-        }
-
-        private void Run(string url)
-        {
-            foreach (var requestProcessor in requestProcessors)
-                requestProcessor.Initialize(masterData);
+            string appName = PlatformServices.Default.Application.ApplicationName;
+            string appVersion = PlatformServices.Default.Application.ApplicationVersion;
 
             lock (Globals.ConsoleLock)
             {
-                Console.WriteLine($"Build {GitCommitHash.Value}");
+                Console.WriteLine($"{appName} {appVersion} [commit {GitCommitInfo.ShortCommitHash}]");
                 Console.WriteLine();
             }
+
+            CacheStrategy cacheStrategy = LoadCacheStrategy(config);
+
+            masterData = new MasterData(config.GetSection("nuget"), cacheStrategy);
+
+            foreach (RequestProcessorBase requestProcessor in requestProcessors)
+                requestProcessor.Initialize(masterData);
+
+            string url = config["server:url"];
 
             new WebHostBuilder()
                 .UseKestrel()
@@ -109,7 +112,7 @@ namespace MinimalNugetServer
                 Console.WriteLine();
             }
 
-            foreach (var requestProcessor in requestProcessors)
+            foreach (RequestProcessorBase requestProcessor in requestProcessors)
             {
                 if (context.Request.Path.StartsWithSegments(requestProcessor.Segment))
                 {

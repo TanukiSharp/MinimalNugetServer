@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
+using Microsoft.Extensions.Configuration;
 using MinimalNugetServer.ContentFacades;
 
 namespace MinimalNugetServer
@@ -27,17 +29,19 @@ namespace MinimalNugetServer
         private readonly IContentFacadeAccessor contentFacade;
 
         private readonly string packagesPath;
+        private readonly bool makeReadonly;
 
         private ReaderWriterLockSlim packagesProcessingLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
         private const int PackageProcessingThrottleDelay = 1000;
         private Timer packageProcessingThrottleTimer;
 
-        public MasterData(string packagesPath, CacheStrategy cacheStrategy)
+        public MasterData(IConfiguration nugetConfig, CacheStrategy cacheStrategy)
         {
-            if (string.IsNullOrWhiteSpace(packagesPath))
-                throw new ArgumentException($"Invalid '{nameof(packagesPath)}' argument.", nameof(packagesPath));
+            if (nugetConfig == null)
+                throw new ArgumentException($"Invalid '{nameof(nugetConfig)}' argument.", nameof(nugetConfig));
 
-            this.packagesPath = packagesPath;
+            packagesPath = nugetConfig["packages"];
+            makeReadonly = bool.Parse(nugetConfig["makeReadonly"]);
 
             if (cacheStrategy.CacheType == CacheType.NoCacheLoadAll)
                 contentFacade = new LoadAllContentFacade();
@@ -146,7 +150,13 @@ namespace MinimalNugetServer
             lock (Globals.ConsoleLock)
                 Console.WriteLine("Processing packages...");
 
-            var allFiles = Directory.GetFiles(packagesPath, "*.nupkg", SearchOption.AllDirectories);
+            string[] allFiles = Directory.GetFiles(packagesPath, "*.nupkg", SearchOption.AllDirectories);
+
+            if (makeReadonly && RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
+            {
+                foreach (string filename in allFiles)
+                    Utils.ChMod("555", filename);
+            }
 
             var groups = from fullFilePath in allFiles
                          where fullFilePath.EndsWith(".symbols.nupkg") == false
@@ -170,17 +180,17 @@ namespace MinimalNugetServer
                     contentFacade.Add(info.ContentId, info.FullFilePath);
             }
 
-            var localPackages = (from g in groups
-                        let versions = g.Select(x => new VersionInfo { Version = x.Version, ContentId = x.ContentId }).OrderBy(x => x.Version).ToArray()
-                        select new PackageInfo
-                        {
-                            Id = g.Key,
-                            Versions = versions,
-                            LatestVersion = versions[versions.Length - 1].Version,
-                            LatestContentId = versions[versions.Length - 1].ContentId
-                        })
-                        .OrderBy(x => x.Id)
-                        .ToArray();
+            PackageInfo[] localPackages = (from g in groups
+                let versions = g.Select(x => new VersionInfo { Version = x.Version, ContentId = x.ContentId }).OrderBy(x => x.Version).ToArray()
+                select new PackageInfo
+                {
+                    Id = g.Key,
+                    Versions = versions,
+                    LatestVersion = versions[versions.Length - 1].Version,
+                    LatestContentId = versions[versions.Length - 1].ContentId
+                })
+                .OrderBy(x => x.Id)
+                .ToArray();
 
             packages = new ReadOnlyCollection<PackageInfo>(localPackages);
 

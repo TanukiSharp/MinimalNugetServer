@@ -1,5 +1,6 @@
-CONFIGURATION=Release
-OUTPUT=../bin/${CONFIGURATION}/netcoreapp1.1/publish/
+CONFIGURATION=release
+RUNTIME=netcoreapp1.1
+OUTPUT=../bin/${CONFIGURATION}/${RUNTIME}/publish/
 pushd ..
 dotnet restore
 dotnet publish -c ${CONFIGURATION}

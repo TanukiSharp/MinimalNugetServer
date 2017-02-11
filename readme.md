@@ -31,16 +31,13 @@ It seems for the moment the only available implementations of NuGet server is ma
 
 ## Build
 
-First, you must make sure you have .NET Core SDK 1.0.0-preview2-003156 tooling, as stated in the `global.json` file.
-You can probably change the `global.json` to another version if you prefer.
+First, you must make sure you have .NET Core SDK 1.0.0-rc4-004771.
 
-You will need the .NET Core 1.1 runtime installed on the machine you will run it, unless you modify the `project.json` file to produce a self-contained distribution.
-
-In a terminal, go to the directory that contains the `project.json` file and run the `dotnet build` command.
+In a terminal, go to the directory that contains the `.csproj` file and run the `dotnet build` command.
 
 When you build for the first time, you may get the following error:
 
-    error CS0103: The name 'GitCommitHash' does not exist in the current context
+    error CS0103: The name 'GitCommitInfo' does not exist in the current context
 
 This is because a file is generated before compilation, and is not taken into account for the build.
 Just run `dotnet build` again and the it will finally compile correctly.
@@ -55,26 +52,27 @@ Just run `dotnet build` again and the it will finally compile correctly.
     #make_publishable.bat
 
     # === on Linux ===
-    #chmod +x make_publishable.sh && ./make_publishable.sh
+    #./make_publishable.sh
 
-    cd ../bin/Release/netcoreapp1.0/publish/
+    cd ../bin/release/netcoreapp1.0/publish/
     # ===== edit the configuration.json file
-    dotnet run
+    dotnet MinimalNugetServer.dll
 
 ### Detailed explanations
 
 For all `.sh` scripts you will need to run on Linux, remember that they must first be made executable by running the command `chmod +x <script>`.
+The `.sh` files are committed with 755 rights in the git repository.
 
-You can use the `dotnet run` command to run it directly from the directory that contains the `project.json` file, but you would first have to modify the default `configuration.json` file provided.
+You can use the `dotnet run` command to run it directly from the directory that contains the `.csproj` file, but you would first have to modify the default `configuration.json` file provided.
 
 In the `scripts` directory, you can run the script `make_publishable`, either the `.bat` for Windows or the `.sh` for Linux (never tested on Mac).
 
-This will make everything ready in the directory `bin/Release/netcoreapp1.1/publish` for you to deploy to a hosting server.
+This will make everything ready in the directory `bin/release/netcoreapp1.1/publish` for you to deploy to a hosting server.
 
 Once deployed where you want to run it, execute the command `./start.sh`.
 This will run the server and make it look for the `configuration.json` file.
 
-You can also run the server giving it a specific configuration file, this way: `start.sh <configfile>`.
+You can also run the server giving it a specific configuration file, this way: `./start.sh <configfile>`.
 This is very useful when you want to host different package repositories.
 
 The `start.sh` script runs the server detached from the terminal that ran it, redirects all outputs to a log file, and creates a `run.pid` file to track the process in order to stop it more easily if needed.
@@ -94,7 +92,8 @@ The configuration file is pretty much straightforward and self explanatory.
     "url": "http://*:4356"
   },
   "nuget": {
-    "packages": "/absolute/path/to/packages/folder"
+    "packages": "/absolute/path/to/packages/folder",
+    "makeReadonly": true
   },
   "cache": {
     "type": "NoCacheLoadAll",
@@ -106,13 +105,15 @@ The configuration file is pretty much straightforward and self explanatory.
 The `server` section holds the configuration related to the hosting server, and for now it contains only the `url` key, which is where the server will listen for requests.
 You may not need to change this unless you want to change the port. The port has been chosen purely randomly, we call this very advanced technique *to throw a shoe on the keyboard*.
 
-The `nuget` section holds the configuration related to the `NuGet` things, and for now it contains only the `packages` key, which is the directory where your packages are stored.
+The `nuget` section holds the configuration related to the `NuGet` things:
+    - `packages`: directory where your packages are stored.
+    - `makeReadonly`: if true, will call `chmod 555 <filename>` on each .nupkg each time they are processed. (ignored on Windows)
 
 The `cache` section contains the cache strategy settings:
 - `type`: the type of cache strategy.
-  - `NoCacheLoadAll`: does not use cache, all files are loaded in memory. (this is the default, and the fallback if setting is incorrect)
-  - `NoCacheLoadNothing`: does not use cache, never prefetch files and load from file each time a file is requested.
-  - `Cache`: does not fetch any file, but caches them when they are first accessed.
+    - `NoCacheLoadAll`: does not use cache, all files are loaded in memory. (this is the default, and the fallback if setting is incorrect)
+    - `NoCacheLoadNothing`: does not use cache, never prefetch files and load from file each time a file is requested.
+    - `Cache`: does not fetch any file, but caches them when they are first accessed.
 - `duration`: used only by the `Cache` strategy, sets the sliding expiration time of each cache entries, in secconds.
 
 # Runtime

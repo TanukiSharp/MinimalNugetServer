@@ -3,7 +3,8 @@
     "url": "http://*:4356"
   },
   "nuget": {
-    "packages": "/absolute/path/to/packages/folder"
+    "packages": "/absolute/path/to/packages/folder",
+    "makeReadonly": true
   },
   "cache": {
     "type": "NoCacheLoadAll",
