@@ -2,12 +2,12 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>netcoreapp1.1</TargetFramework>
+        <TargetFramework>netcoreapp2.0</TargetFramework>
         <Authors>Sebastien ROBERT</Authors>
         <Company />
         <Description>A minimal but cross-platform implementation of a NuGet server, running on .NET Core</Description>
         <PackageTags>nuget server nuget-server cross-platform</PackageTags>
-        <Version>1.0.5</Version>
+        <Version>1.1.0</Version>
         <Copyright>Sebastien ROBERT</Copyright>
         <PackageLicenseUrl>https://raw.githubusercontent.com/TanukiSharp/MinimalNugetServer/master/LICENSE</PackageLicenseUrl>
         <PackageProjectUrl>https://github.com/TanukiSharp/MinimalNugetServer</PackageProjectUrl>
