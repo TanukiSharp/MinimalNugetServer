@@ -7,7 +7,7 @@
         <Company />
         <Description>A minimal but cross-platform implementation of a NuGet server, running on .NET Core</Description>
         <PackageTags>nuget server nuget-server cross-platform</PackageTags>
-        <Version>1.0.4</Version>
+        <Version>1.0.5</Version>
         <Copyright>Sebastien ROBERT</Copyright>
         <PackageLicenseUrl>https://raw.githubusercontent.com/TanukiSharp/MinimalNugetServer/master/LICENSE</PackageLicenseUrl>
         <PackageProjectUrl>https://github.com/TanukiSharp/MinimalNugetServer</PackageProjectUrl>
@@ -24,12 +24,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <DotNetCliToolReference Include="Bitcraft.Tools.GitCommitInfo">
-            <Version>1.0.1</Version>
-        </DotNetCliToolReference>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="1.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.0" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="1.1.0" />
@@ -38,8 +32,17 @@
         <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     </ItemGroup>
 
-    <Target Name="PrecompileScript" BeforeTargets="BeforeBuild">
+    <!-- ========== begining of Bitcraft.Tools.GitCommitInfo section ========== -->
+    <ItemGroup>
+        <DotNetCliToolReference Include="Bitcraft.Tools.GitCommitInfo" Version="1.1.0" />
+    </ItemGroup>
+
+    <Target Name="GitCommitInfoTarget" AfterTargets="Restore" BeforeTargets="BeforeBuild">
         <Exec Command="dotnet git-commit-info" />
+        <ItemGroup>
+            <Compile Include="**/*$(DefaultLanguageSourceExtension)" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);$(BaseIntermediateOutputPath)**;$(BaseOutputPath)**;@(Compile)" />
+        </ItemGroup>
     </Target>
+    <!-- ========== end of Bitcraft.Tools.GitCommitInfo section ========== -->
 
 </Project>
