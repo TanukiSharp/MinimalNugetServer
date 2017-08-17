@@ -31,7 +31,7 @@ It seems for the moment the only available implementations of NuGet server is ma
 
 ## Build
 
-First, you must make sure you have .NET Core SDK 1.0.0-rc4-004771.
+First, you must make sure you have .NET Core SDK 2.0.
 
 In a terminal, go to the directory that contains the `.csproj` file and run the `dotnet build` command.
 
@@ -54,7 +54,7 @@ Just run `dotnet build` again and the it will finally compile correctly.
     # === on Linux ===
     #./make_publishable.sh
 
-    cd ../bin/release/netcoreapp1.0/publish/
+    cd ../bin/release/netcoreapp2.0/publish/
     # ===== edit the configuration.json file
     dotnet MinimalNugetServer.dll
 
@@ -67,7 +67,7 @@ You can use the `dotnet run` command to run it directly from the directory that 
 
 In the `scripts` directory, you can run the script `make_publishable`, either the `.bat` for Windows or the `.sh` for Linux (never tested on Mac).
 
-This will make everything ready in the directory `bin/release/netcoreapp1.1/publish` for you to deploy to a hosting server.
+This will make everything ready in the directory `bin/release/netcoreapp2.0/publish` for you to deploy to a hosting server.
 
 Once deployed where you want to run it, execute the command `./start.sh`.
 This will run the server and make it look for the `configuration.json` file.
