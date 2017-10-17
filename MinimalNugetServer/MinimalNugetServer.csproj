@@ -33,17 +33,4 @@
         <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     </ItemGroup>
 
-    <!-- ========== begining of Bitcraft.Tools.GitCommitInfo section ========== -->
-    <ItemGroup>
-        <DotNetCliToolReference Include="Bitcraft.Tools.GitCommitInfo" Version="1.1.0" />
-    </ItemGroup>
-
-    <Target Name="GitCommitInfoTarget" AfterTargets="Restore" BeforeTargets="BeforeBuild">
-        <Exec Command="dotnet git-commit-info" />
-        <ItemGroup>
-            <Compile Include="**/*$(DefaultLanguageSourceExtension)" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);$(BaseIntermediateOutputPath)**;$(BaseOutputPath)**;@(Compile)" />
-        </ItemGroup>
-    </Target>
-    <!-- ========== end of Bitcraft.Tools.GitCommitInfo section ========== -->
-
 </Project>
