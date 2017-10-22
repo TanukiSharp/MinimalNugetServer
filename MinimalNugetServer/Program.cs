@@ -69,6 +69,9 @@ namespace MinimalNugetServer
 
         private void Run(IConfigurationRoot config)
         {
+            string appName = PlatformServices.Default.Application.ApplicationName;
+            string appVersion = PlatformServices.Default.Application.ApplicationVersion;
+
             CacheStrategy cacheStrategy = LoadCacheStrategy(config);
 
             masterData = new MasterData(config.GetSection("nuget"), cacheStrategy);
