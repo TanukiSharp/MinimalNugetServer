@@ -72,12 +72,6 @@ namespace MinimalNugetServer
             string appName = PlatformServices.Default.Application.ApplicationName;
             string appVersion = PlatformServices.Default.Application.ApplicationVersion;
 
-            lock (Globals.ConsoleLock)
-            {
-                Console.WriteLine($"{appName} {appVersion} [commit {GitCommitInfo.Instance.ShortCommitHash}]");
-                Console.WriteLine();
-            }
-
             CacheStrategy cacheStrategy = LoadCacheStrategy(config);
 
             masterData = new MasterData(config.GetSection("nuget"), cacheStrategy);
