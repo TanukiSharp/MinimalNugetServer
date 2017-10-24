@@ -74,7 +74,7 @@ namespace MinimalNugetServer
 
             lock (Globals.ConsoleLock)
             {
-                Console.WriteLine($"{appName} {appVersion} [commit {GitCommitInfo.Instance.ShortCommitHash}]");
+                Console.WriteLine($"{appName} {appVersion}");
                 Console.WriteLine();
             }
 
