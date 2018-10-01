@@ -59,8 +59,6 @@ namespace MinimalNugetServer
 
         // ===================================================================================
 
-        private MasterData masterData;
-
         private readonly RequestProcessorBase[] requestProcessors = new RequestProcessorBase[]
         {
             new Version2RequestProcessor(),
@@ -71,6 +69,7 @@ namespace MinimalNugetServer
         {
             string appName = PlatformServices.Default.Application.ApplicationName;
             string appVersion = PlatformServices.Default.Application.ApplicationVersion;
+            MasterData masterData;
 
             lock (Globals.ConsoleLock)
             {
