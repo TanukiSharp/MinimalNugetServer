@@ -33,4 +33,10 @@
         <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="configuration.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
